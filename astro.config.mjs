@@ -11,11 +11,6 @@ export default defineConfig({
 
   vite: {
     plugins: [tailwindcss()],
-    define: {
-      "import.meta.env.WP_API_URL": JSON.stringify(
-        process.env.WP_API_URL || "https://your-wordpress-site.com/wp-json"
-      ),
-    },
   },
 
   output: "static",
