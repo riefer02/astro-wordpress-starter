@@ -12,11 +12,11 @@ cd "$(dirname "$0")"
 
 # Stop any existing containers (preserve data volumes)
 echo "🛑 Stopping existing containers..."
-docker-compose down
+docker-compose --env-file ../.env down
 
 # Start the containers
 echo "🐳 Starting WordPress and MySQL containers..."
-docker-compose up -d
+docker-compose --env-file ../.env up -d
 
 echo "⏳ Waiting for services to be ready..."
 sleep 10
@@ -27,7 +27,7 @@ max_attempts=30
 attempt=0
 
 while [ $attempt -lt $max_attempts ]; do
-    if docker-compose exec -T db mysql -u wordpress -pwordpress -e "SELECT 1" wordpress > /dev/null 2>&1; then
+    if docker-compose --env-file ../.env exec -T db mysql -u wordpress -pwordpress -e "SELECT 1" wordpress > /dev/null 2>&1; then
         echo "✅ MySQL is ready!"
         break
     fi
@@ -67,7 +67,7 @@ fi
 # WordPress initialization functions
 wp_cli() {
     # Use wp-cli container with profile (should not recreate existing containers)
-    docker-compose --profile cli run --rm wp-cli wp "$@" --allow-root --path=/var/www/html
+    docker-compose --env-file ../.env --profile cli run --rm wp-cli wp "$@" --allow-root --path=/var/www/html
 }
 
 # Wait for wp-cli to be able to connect to database
