@@ -13,8 +13,15 @@
     "wp:restart": "cd wordpress-local && docker-compose restart",
     "wp:logs": "cd wordpress-local && docker-compose logs -f wordpress",
     "wp:clean": "cd wordpress-local && docker-compose down -v && docker system prune -f",
-    "wp:backup": "cd wordpress-local && docker-compose exec db mysqldump -u wordpress -pwordpress wordpress > backup.sql",
+    "wp:backup": "cd wordpress-local && docker-compose exec db mysqladump -u wordpress -pwordpress wordpress > backup.sql",
     "wp:restore": "cd wordpress-local && docker-compose exec -T db mysql -u wordpress -pwordpress wordpress < backup.sql",
+    "wp:cli": "cd wordpress-local && docker-compose --profile cli run --rm wp-cli wp",
+    "wp:plugin:list": "cd wordpress-local && docker-compose --profile cli run --rm wp-cli wp plugin list",
+    "wp:plugin:install": "cd wordpress-local && docker-compose --profile cli run --rm wp-cli wp plugin install",
+    "wp:plugin:activate": "cd wordpress-local && docker-compose --profile cli run --rm wp-cli wp plugin activate",
+    "wp:plugin:deactivate": "cd wordpress-local && docker-compose --profile cli run --rm wp-cli wp plugin deactivate",
+    "wp:posts": "cd wordpress-local && docker-compose --profile cli run --rm wp-cli wp post list",
+    "wp:pages": "cd wordpress-local && docker-compose --profile cli run --rm wp-cli wp post list --post_type=page",
     "type-check": "astro check"
   },
   "dependencies": {

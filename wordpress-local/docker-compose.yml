@@ -4,10 +4,10 @@ services:
     ports:
       - "8080:80"
     environment:
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD: wordpress
-      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
       # Auto-configure WordPress on first run
       WORDPRESS_CONFIG_EXTRA: |
         define('WP_DEBUG', true);
@@ -19,12 +19,14 @@ services:
       - wp_files:/var/www/html
       - ./init-wordpress.sh:/usr/local/bin/init-wordpress.sh
       - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
-      - ./headless-cors.php:/var/www/html/wp-content/plugins/headless-cors.php
+      - ./wp-content:/var/www/html/wp-content
     depends_on:
       - db
     restart: unless-stopped
     networks:
       - wp-network
+    env_file:
+      - ../.env
 
   db:
     image: mysql:8.0
@@ -32,10 +34,10 @@ services:
     ports:
       - "3328:3306"
     environment:
-      MYSQL_DATABASE: wordpress
-      MYSQL_USER: wordpress
-      MYSQL_PASSWORD: wordpress
-      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - db_data:/var/lib/mysql
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
@@ -48,8 +50,8 @@ services:
           "-h",
           "localhost",
           "-u",
-          "wordpress",
-          "-pwordpress",
+          "${MYSQL_USER}",
+          "-p${MYSQL_PASSWORD}",
         ]
       timeout: 10s
       retries: 5
@@ -58,21 +60,26 @@ services:
     restart: unless-stopped
     networks:
       - wp-network
+    env_file:
+      - ../.env
 
   # Optional: WordPress CLI for management
   wp-cli:
     image: wordpress:cli
     volumes:
       - wp_files:/var/www/html
+      - ./wp-content:/var/www/html/wp-content
     environment:
-      WORDPRESS_DB_HOST: db
-      WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD: wordpress
-      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
     networks:
       - wp-network
     profiles:
       - cli
+    env_file:
+      - ../.env
 
 networks:
   wp-network:
