@@ -24,7 +24,11 @@
     "wp:plugin:deactivate": "cd wordpress-local && docker-compose --profile cli run --rm wp-cli wp plugin deactivate",
     "wp:posts": "cd wordpress-local && docker-compose --profile cli run --rm wp-cli wp post list",
     "wp:pages": "cd wordpress-local && docker-compose --profile cli run --rm wp-cli wp post list --post_type=page",
-    "type-check": "astro check"
+    "type-check": "astro check",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.astro",
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx,.astro --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
@@ -44,6 +48,18 @@
     "typescript": "^5.8.3"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.31.0",
+    "@types/eslint": "^9.6.1",
+    "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "@typescript-eslint/parser": "^8.36.0",
+    "eslint": "^9.31.0",
+    "eslint-plugin-astro": "^1.3.1",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-astro": "^0.14.1",
     "tsx": "^4.19.2",
     "tw-animate-css": "^1.3.5"
   }

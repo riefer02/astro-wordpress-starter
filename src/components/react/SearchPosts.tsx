@@ -1,8 +1,8 @@
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface Post {
   id: number;
@@ -17,9 +17,9 @@ interface SearchPostsProps {
 }
 
 export default function SearchPosts({
-  wpApiUrl = "/wp-json",
+  wpApiUrl = '/wp-json',
 }: SearchPostsProps) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,15 +44,15 @@ export default function SearchPosts({
       const results = await response.json();
       setPosts(results);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Search failed");
-      console.error("Search failed:", err);
+      setError(err instanceof Error ? err.message : 'Search failed');
+      console.error('Search failed:', err);
     } finally {
       setLoading(false);
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
+    if (e.key === 'Enter') {
       searchPosts();
     }
   };
@@ -69,7 +69,7 @@ export default function SearchPosts({
           className="flex-1"
         />
         <Button onClick={searchPosts} disabled={loading}>
-          {loading ? "Searching..." : "Search"}
+          {loading ? 'Searching...' : 'Search'}
         </Button>
       </div>
 

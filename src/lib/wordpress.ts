@@ -3,14 +3,14 @@ import type {
   WordPressPage,
   WordPressError,
   WordPressEmbedded,
-} from "../types";
+} from '../types';
 
 interface FetchOptions {
   page?: number;
   per_page?: number;
   search?: string;
   orderby?: string;
-  order?: "asc" | "desc";
+  order?: 'asc' | 'desc';
   include?: number[];
   exclude?: number[];
   offset?: number;
@@ -38,10 +38,10 @@ class WordPressClient {
 
   private normalizeBaseUrl(url: string): string {
     // Remove trailing slash
-    url = url.replace(/\/$/, "");
+    url = url.replace(/\/$/, '');
 
     // If the URL already contains /wp-json, use it as-is
-    if (url.includes("/wp-json")) {
+    if (url.includes('/wp-json')) {
       return url;
     }
 
@@ -55,7 +55,7 @@ class WordPressClient {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const error: WordPressError = {
-        code: errorData.code || "fetch_error",
+        code: errorData.code || 'fetch_error',
         message:
           errorData.message ||
           `HTTP ${response.status}: ${response.statusText}`,
@@ -94,13 +94,13 @@ class WordPressClient {
 
     // Always embed media and author by default
     if (!params._embed) {
-      url.searchParams.append("_embed", "wp:featuredmedia,author");
+      url.searchParams.append('_embed', 'wp:featuredmedia,author');
     }
 
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
         if (Array.isArray(value)) {
-          url.searchParams.append(key, value.join(","));
+          url.searchParams.append(key, value.join(','));
         } else {
           url.searchParams.append(key, value.toString());
         }
@@ -114,14 +114,14 @@ class WordPressClient {
    * Fetch multiple posts with filtering and pagination
    */
   async fetchPosts(params: FetchOptions = {}): Promise<WordPressPost[]> {
-    const cacheKey = this.getCacheKey("posts", params);
+    const cacheKey = this.getCacheKey('posts', params);
     const cached = this.getFromCache<WordPressPost[]>(cacheKey);
 
     if (cached) {
       return cached;
     }
 
-    const url = this.buildUrl("posts", params);
+    const url = this.buildUrl('posts', params);
     const posts = await this.fetchWithError<WordPressPost[]>(url);
 
     this.setCache(cacheKey, posts);
@@ -132,14 +132,14 @@ class WordPressClient {
    * Fetch a single post by slug
    */
   async fetchPost(slug: string): Promise<WordPressPost | null> {
-    const cacheKey = this.getCacheKey("post", { slug });
+    const cacheKey = this.getCacheKey('post', { slug });
     const cached = this.getFromCache<WordPressPost | null>(cacheKey);
 
     if (cached !== null) {
       return cached;
     }
 
-    const url = this.buildUrl("posts", { slug });
+    const url = this.buildUrl('posts', { slug });
     const posts = await this.fetchWithError<WordPressPost[]>(url);
     const post = posts[0] || null;
 
@@ -151,7 +151,7 @@ class WordPressClient {
    * Fetch a single post by ID
    */
   async fetchPostById(id: number): Promise<WordPressPost | null> {
-    const cacheKey = this.getCacheKey("post", { id });
+    const cacheKey = this.getCacheKey('post', { id });
     const cached = this.getFromCache<WordPressPost | null>(cacheKey);
 
     if (cached !== null) {
@@ -175,14 +175,14 @@ class WordPressClient {
    * Fetch multiple pages with filtering and pagination
    */
   async fetchPages(params: FetchOptions = {}): Promise<WordPressPage[]> {
-    const cacheKey = this.getCacheKey("pages", params);
+    const cacheKey = this.getCacheKey('pages', params);
     const cached = this.getFromCache<WordPressPage[]>(cacheKey);
 
     if (cached) {
       return cached;
     }
 
-    const url = this.buildUrl("pages", params);
+    const url = this.buildUrl('pages', params);
     const pages = await this.fetchWithError<WordPressPage[]>(url);
 
     this.setCache(cacheKey, pages);
@@ -193,14 +193,14 @@ class WordPressClient {
    * Fetch a single page by slug
    */
   async fetchPage(slug: string): Promise<WordPressPage | null> {
-    const cacheKey = this.getCacheKey("page", { slug });
+    const cacheKey = this.getCacheKey('page', { slug });
     const cached = this.getFromCache<WordPressPage | null>(cacheKey);
 
     if (cached !== null) {
       return cached;
     }
 
-    const url = this.buildUrl("pages", { slug });
+    const url = this.buildUrl('pages', { slug });
     const pages = await this.fetchWithError<WordPressPage[]>(url);
     const page = pages[0] || null;
 
@@ -289,7 +289,7 @@ class WordPressClient {
 
 // Create and export the WordPress client instance
 export const wp = new WordPressClient(
-  import.meta.env.WP_API_URL || "http://localhost:8080"
+  import.meta.env.WP_API_URL || 'http://localhost:8080'
 );
 
 // Export types for convenience

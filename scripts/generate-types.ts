@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 
-import { writeFileSync, mkdirSync } from "fs";
-import { join } from "path";
+import { writeFileSync, mkdirSync } from 'fs';
+import { join } from 'path';
 
 interface WordPressEndpoint {
   description: string;
@@ -27,13 +27,13 @@ class WordPressTypeGenerator {
   private baseUrl: string;
   private outputDir: string;
 
-  constructor(baseUrl: string, outputDir: string = "src/types") {
+  constructor(baseUrl: string, outputDir: string = 'src/types') {
     this.baseUrl = baseUrl;
     this.outputDir = outputDir;
   }
 
   async generateTypes(): Promise<void> {
-    console.log("🚀 Starting WordPress type generation...");
+    console.log('🚀 Starting WordPress type generation...');
 
     try {
       // Create output directory if it doesn't exist
@@ -54,9 +54,9 @@ class WordPressTypeGenerator {
       // Write types to files
       this.writeTypesToFiles(baseTypes, postTypes, acfTypes);
 
-      console.log("✅ WordPress types generated successfully!");
+      console.log('✅ WordPress types generated successfully!');
     } catch (error) {
-      console.error("❌ Error generating types:", error);
+      console.error('❌ Error generating types:', error);
       process.exit(1);
     }
   }
@@ -232,7 +232,7 @@ export interface WordPressEmbedded {
       return types;
     } catch (error) {
       console.warn(
-        "⚠️  Could not fetch post types, using default types:",
+        '⚠️  Could not fetch post types, using default types:',
         error
       );
       return `// Default Post Types (fallback)
@@ -304,8 +304,8 @@ export interface WordPressPage {
         `${this.baseUrl}/wp-json/acf/v3/field-groups`
       );
       if (!response.ok) {
-        console.warn("⚠️  ACF API not available, skipping ACF types");
-        return "";
+        console.warn('⚠️  ACF API not available, skipping ACF types');
+        return '';
       }
 
       const fieldGroups = await response.json();
@@ -328,7 +328,7 @@ export interface WordPressPage {
               for (const field of fields) {
                 const fieldType = this.getACFFieldType(field.type);
                 const fieldName = this.sanitizeFieldName(field.name);
-                const optional = field.required ? "" : "?";
+                const optional = field.required ? '' : '?';
 
                 types += `  ${fieldName}${optional}: ${fieldType};\n`;
               }
@@ -341,62 +341,62 @@ export interface WordPressPage {
 
       return types;
     } catch (error) {
-      console.warn("⚠️  Could not fetch ACF types:", error);
-      return "";
+      console.warn('⚠️  Could not fetch ACF types:', error);
+      return '';
     }
   }
 
   private getACFFieldType(acfType: string): string {
     const typeMap: Record<string, string> = {
-      text: "string",
-      textarea: "string",
-      number: "number",
-      email: "string",
-      url: "string",
-      password: "string",
-      image: "WordPressMedia",
-      file: "WordPressMedia",
-      select: "string",
-      checkbox: "string[]",
-      radio: "string",
-      true_false: "boolean",
-      post_object: "WordPressPost",
-      page_link: "string",
-      link: "{ title: string; url: string; target: string }",
-      taxonomy: "WordPressCategory[]",
-      user: "WordPressAuthor",
-      google_map: "{ lat: number; lng: number; address: string }",
-      date_picker: "string",
-      date_time_picker: "string",
-      time_picker: "string",
-      color_picker: "string",
-      wysiwyg: "string",
-      oembed: "string",
-      gallery: "WordPressMedia[]",
-      relationship: "WordPressPost[]",
-      repeater: "Record<string, any>[]",
-      flexible_content: "Record<string, any>[]",
-      clone: "Record<string, any>",
-      group: "Record<string, any>",
+      text: 'string',
+      textarea: 'string',
+      number: 'number',
+      email: 'string',
+      url: 'string',
+      password: 'string',
+      image: 'WordPressMedia',
+      file: 'WordPressMedia',
+      select: 'string',
+      checkbox: 'string[]',
+      radio: 'string',
+      true_false: 'boolean',
+      post_object: 'WordPressPost',
+      page_link: 'string',
+      link: '{ title: string; url: string; target: string }',
+      taxonomy: 'WordPressCategory[]',
+      user: 'WordPressAuthor',
+      google_map: '{ lat: number; lng: number; address: string }',
+      date_picker: 'string',
+      date_time_picker: 'string',
+      time_picker: 'string',
+      color_picker: 'string',
+      wysiwyg: 'string',
+      oembed: 'string',
+      gallery: 'WordPressMedia[]',
+      relationship: 'WordPressPost[]',
+      repeater: 'Record<string, any>[]',
+      flexible_content: 'Record<string, any>[]',
+      clone: 'Record<string, any>',
+      group: 'Record<string, any>',
     };
 
-    return typeMap[acfType] || "any";
+    return typeMap[acfType] || 'any';
   }
 
   private sanitizeFieldName(name: string): string {
     // Remove special characters and make camelCase
     return name
-      .replace(/[^a-zA-Z0-9_]/g, "_")
-      .replace(/^_+|_+$/g, "")
-      .replace(/_+/g, "_")
-      .replace(/^(\d)/, "_$1") // Prefix with underscore if starts with number
-      .split("_")
+      .replace(/[^a-zA-Z0-9_]/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .replace(/_+/g, '_')
+      .replace(/^(\d)/, '_$1') // Prefix with underscore if starts with number
+      .split('_')
       .map((word, index) =>
         index === 0
           ? word.toLowerCase()
           : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
       )
-      .join("");
+      .join('');
   }
 
   private capitalize(str: string): string {
@@ -410,13 +410,13 @@ export interface WordPressPage {
   ): void {
     // Write main types file
     const mainTypes = baseTypes + postTypes + acfTypes;
-    writeFileSync(join(this.outputDir, "wordpress.d.ts"), mainTypes);
+    writeFileSync(join(this.outputDir, 'wordpress.d.ts'), mainTypes);
 
     // Write index file
     const indexContent = `// WordPress Types Index
 export * from './wordpress';
 `;
-    writeFileSync(join(this.outputDir, "index.ts"), indexContent);
+    writeFileSync(join(this.outputDir, 'index.ts'), indexContent);
 
     console.log(`📝 Types written to ${this.outputDir}/`);
   }
@@ -424,7 +424,7 @@ export * from './wordpress';
 
 // Run the generator
 const generator = new WordPressTypeGenerator(
-  process.env.WP_API_URL || "http://localhost:8080"
+  process.env.WP_API_URL || 'http://localhost:8080'
 );
 
 generator.generateTypes().catch(console.error);

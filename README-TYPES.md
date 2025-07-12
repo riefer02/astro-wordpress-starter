@@ -29,17 +29,17 @@ This will create type definitions in `src/types/wordpress.d.ts` based on your Wo
 ### 3. Use the Generated Types
 
 ```typescript
-import { wp } from "./lib/wordpress";
-import type { WordPressPost, WordPressPage } from "./types";
+import { wp } from './lib/wordpress';
+import type { WordPressPost, WordPressPage } from './types';
 
 // Fetch posts with full type safety
 const posts: WordPressPost[] = await wp.fetchPosts({
   per_page: 10,
-  status: "publish",
+  status: 'publish',
 });
 
 // Access ACF fields with type safety
-const post = await wp.fetchPost("my-post-slug");
+const post = await wp.fetchPost('my-post-slug');
 if (post?.acf) {
   // ACF fields are typed based on your field groups
   console.log(post.acf.my_custom_field);
@@ -95,7 +95,7 @@ The enhanced WordPress client provides:
 const posts = await wp.fetchPosts();
 
 // Fetch single post by slug
-const post = await wp.fetchPost("my-post-slug");
+const post = await wp.fetchPost('my-post-slug');
 
 // Fetch post by ID
 const post = await wp.fetchPostById(123);
@@ -105,7 +105,7 @@ const post = await wp.fetchPostById(123);
 
 ```typescript
 // Search posts
-const results = await wp.searchPosts("search term");
+const results = await wp.searchPosts('search term');
 
 // Filter by category
 const posts = await wp.getPostsByCategory(5);
@@ -120,10 +120,10 @@ const posts = await wp.getPostsByAuthor(1);
 const posts = await wp.fetchPosts({
   per_page: 20,
   categories: [1, 2, 3],
-  orderby: "date",
-  order: "desc",
-  meta_key: "featured",
-  meta_value: "true",
+  orderby: 'date',
+  order: 'desc',
+  meta_key: 'featured',
+  meta_value: 'true',
 });
 ```
 
@@ -131,12 +131,12 @@ const posts = await wp.fetchPosts({
 
 ```typescript
 // Fetch custom post type
-const products = await wp.fetchCustomPosts("products");
+const products = await wp.fetchCustomPosts('products');
 
 // With filtering
-const featuredProducts = await wp.fetchCustomPosts("products", {
-  meta_key: "featured",
-  meta_value: "true",
+const featuredProducts = await wp.fetchCustomPosts('products', {
+  meta_key: 'featured',
+  meta_value: 'true',
 });
 ```
 
@@ -144,10 +144,10 @@ const featuredProducts = await wp.fetchCustomPosts("products", {
 
 ```typescript
 try {
-  const post = await wp.fetchPost("non-existent");
+  const post = await wp.fetchPost('non-existent');
 } catch (error) {
-  if (error.code === "fetch_error") {
-    console.log("Post not found:", error.message);
+  if (error.code === 'fetch_error') {
+    console.log('Post not found:', error.message);
   }
 }
 ```

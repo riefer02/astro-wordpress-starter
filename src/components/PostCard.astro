@@ -1,14 +1,14 @@
 ---
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import type { WordPressPost } from "@/lib/wordpress";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import type { WordPressPost } from '@/lib/wordpress';
 
 export interface Props {
   post: WordPressPost;
 }
 
 const { post } = Astro.props;
-const featuredImage = post._embedded?.["wp:featuredmedia"]?.[0];
+const featuredImage = post._embedded?.['wp:featuredmedia']?.[0];
 ---
 
 <Card className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -51,4 +51,3 @@ const featuredImage = post._embedded?.["wp:featuredmedia"]?.[0];
     />
   </CardContent>
 </Card>
-

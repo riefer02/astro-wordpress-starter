@@ -141,7 +141,7 @@ The WordPress API client is configured in `src/lib/wordpress.ts`:
 
 ```typescript
 export const wp = new WordPressClient(
-  import.meta.env.WP_API_URL || "https://your-wordpress-site.com/wp-json"
+  import.meta.env.WP_API_URL || 'https://your-wordpress-site.com/wp-json'
 );
 ```
 
@@ -155,13 +155,13 @@ export const wp = new WordPressClient(
 ### Fetching Posts
 
 ```typescript
-import { wp } from "@/lib/wordpress";
+import { wp } from '@/lib/wordpress';
 
 // Get recent posts
 const posts = await wp.fetchPosts({ per_page: 10 });
 
 // Get a specific post
-const post = await wp.fetchPost("post-slug");
+const post = await wp.fetchPost('post-slug');
 
 // Get pages
 const pages = await wp.fetchPages();
@@ -171,17 +171,15 @@ const pages = await wp.fetchPages();
 
 ```astro
 ---
-import PostCard from "@/components/PostCard.astro";
-import SearchPosts from "@/components/react/SearchPosts";
-import { wp } from "@/lib/wordpress";
+import PostCard from '@/components/PostCard.astro';
+import SearchPosts from '@/components/react/SearchPosts';
+import { wp } from '@/lib/wordpress';
 
 const posts = await wp.fetchPosts({ per_page: 6 });
 ---
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-  {posts.map((post) => (
-    <PostCard post={post} />
-  ))}
+  {posts.map((post) => <PostCard post={post} />)}
 </div>
 
 <SearchPosts client:load wpApiUrl={import.meta.env.WP_API_URL} />
