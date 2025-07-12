@@ -45,56 +45,70 @@ astro-wordpress-starter/
 
 ## 🚀 Quick Start
 
-### 1. Clone the Template
+**TL;DR: Copy env file → Start WordPress → Run dev server → Everything should work! 🤞**
+
+### 1. Clone & Install
 
 ```bash
 git clone https://github.com/your-org/astro-wordpress-starter.git
 cd astro-wordpress-starter
-```
-
-### 2. Install Dependencies
-
-```bash
 npm install
 ```
 
-### 3. Set Up WordPress Environment
+### 2. Environment Setup
 
-**Option A: Use Local WordPress (Recommended for Development)**
+Copy the example environment file and configure it:
 
 ```bash
-# Complete setup with sample content
+# Copy environment variables from example
+cp .env.example .env
+```
+
+The `.env.example` file includes all the necessary configuration for local development with Docker.
+
+### 3. Start WordPress
+
+```bash
+# This sets up everything you need - WordPress, database, plugins, sample content
 npm run wp:setup
-
-# This will:
-# - Start WordPress on http://localhost:8080
-# - Auto-configure with admin/password
-# - Install useful plugins
-# - Create sample posts and pages
-# - Set up CORS for headless usage
 ```
 
-**Option B: Use Existing WordPress Site**
+This will:
+
+- Start WordPress on http://localhost:8080
+- Auto-configure admin user (admin/password)
+- Install useful plugins (ACF, Custom Post Types, etc.)
+- Set up CORS for headless usage
+- Create sample content
+
+### 4. Generate Types (Optional but Recommended)
 
 ```bash
-# Create a .env file and update the WordPress API URL
-WP_API_URL=https://your-wordpress-site.com/wp-json
+# Generate TypeScript types from your WordPress API
+npm run types:generate
 ```
 
-### 4. Start Development Server
+This creates type-safe interfaces for your WordPress content, including custom post types and ACF fields.
+
+### 5. Start Development Server
 
 ```bash
+# In a new terminal window
 npm run dev
 ```
 
-Visit `http://localhost:4321` to see your site!
+Visit `http://localhost:4321` - your site should be running with WordPress content!
 
-### 5. Access WordPress Admin (Local Setup)
+### 6. Access WordPress Admin
 
 - **WordPress Admin**: http://localhost:8080/wp-admin
 - **Username**: admin
 - **Password**: password
 - **REST API**: http://localhost:8080/wp-json
+
+---
+
+**That's it!** If you run into issues, check the troubleshooting section below.
 
 ## 🐳 Local WordPress Development
 
