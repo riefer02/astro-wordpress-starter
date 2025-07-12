@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   wordpress:
     image: wordpress:latest
@@ -18,7 +16,7 @@ services:
         define('FORCE_SSL_ADMIN', false);
         define('WP_AUTO_UPDATE_CORE', false);
     volumes:
-      - wp_content:/var/www/html/wp-content
+      - wp_files:/var/www/html
       - ./init-wordpress.sh:/usr/local/bin/init-wordpress.sh
       - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
       - ./headless-cors.php:/var/www/html/wp-content/plugins/headless-cors.php
@@ -30,6 +28,9 @@ services:
 
   db:
     image: mysql:8.0
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - "3328:3306"
     environment:
       MYSQL_DATABASE: wordpress
       MYSQL_USER: wordpress
@@ -38,18 +39,31 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "wordpress",
+          "-pwordpress",
+        ]
+      timeout: 10s
+      retries: 5
+      interval: 10s
+      start_period: 30s
     restart: unless-stopped
     networks:
       - wp-network
 
   # Optional: WordPress CLI for management
   wp-cli:
-    depends_on:
-      - wordpress
-      - db
     image: wordpress:cli
     volumes:
-      - wp_content:/var/www/html/wp-content
+      - wp_files:/var/www/html
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_USER: wordpress
@@ -57,6 +71,8 @@ services:
       WORDPRESS_DB_NAME: wordpress
     networks:
       - wp-network
+    profiles:
+      - cli
 
 networks:
   wp-network:
@@ -64,4 +80,4 @@ networks:
 
 volumes:
   db_data:
-  wp_content:
+  wp_files:
