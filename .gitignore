@@ -12,7 +12,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-
 # environment variables
 .env
 .env.production
@@ -22,3 +21,12 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Generated WordPress types (do not edit manually)
+src/types/wordpress.d.ts
+
+# IDE
+.vscode/
+
+# Additional logs
+*.log

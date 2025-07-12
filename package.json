@@ -4,9 +4,11 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "npm run types:generate && astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "types:generate": "tsx scripts/generate-types.ts",
+    "types:watch": "tsx scripts/generate-types.ts --watch",
     "wp:setup": "cd wordpress-local && ./setup.sh",
     "wp:local": "cd wordpress-local && docker-compose up -d",
     "wp:stop": "cd wordpress-local && docker-compose down",
@@ -25,6 +27,7 @@
     "type-check": "astro check"
   },
   "dependencies": {
+    "@astrojs/check": "^0.9.4",
     "@astrojs/react": "^4.3.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@tailwindcss/vite": "^4.1.11",
@@ -37,9 +40,11 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tailwind-merge": "^3.3.1",
-    "tailwindcss": "^4.1.11"
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
+    "tsx": "^4.19.2",
     "tw-animate-css": "^1.3.5"
   }
 }

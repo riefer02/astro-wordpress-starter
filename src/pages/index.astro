@@ -3,9 +3,10 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import PostCard from "@/components/PostCard.astro";
 import SearchPosts from "@/components/react/SearchPosts";
 import { wp } from "@/lib/wordpress";
+import type { WordPressPost } from "@/types/wordpress";
 
 // Fetch recent posts
-let posts = [];
+let posts: WordPressPost[] = [];
 try {
   posts = await wp.fetchPosts({ per_page: 6 });
 } catch (error) {
