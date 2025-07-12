@@ -1,0 +1,54 @@
+---
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import type { WordPressPost } from "@/lib/wordpress";
+
+export interface Props {
+  post: WordPressPost;
+}
+
+const { post } = Astro.props;
+const featuredImage = post._embedded?.["wp:featuredmedia"]?.[0];
+---
+
+<Card className="overflow-hidden hover:shadow-lg transition-shadow">
+  {
+    featuredImage && (
+      <div class="aspect-video overflow-hidden">
+        <img
+          src={featuredImage.source_url}
+          alt={featuredImage.alt_text || post.title.rendered}
+          class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+          loading="lazy"
+        />
+      </div>
+    )
+  }
+
+  <CardHeader>
+    <CardTitle className="line-clamp-2">
+      <a
+        href={`/posts/${post.slug}`}
+        class="hover:text-primary transition-colors"
+      >
+        {post.title.rendered}
+      </a>
+    </CardTitle>
+    <div
+      class="flex items-center justify-between text-sm text-muted-foreground"
+    >
+      <time datetime={post.date}>
+        {new Date(post.date).toLocaleDateString()}
+      </time>
+      <Badge variant="secondary">Post</Badge>
+    </div>
+  </CardHeader>
+
+  <CardContent>
+    <div
+      class="prose prose-sm max-w-none line-clamp-3"
+      set:html={post.excerpt.rendered}
+    />
+  </CardContent>
+</Card>
+

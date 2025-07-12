@@ -1,0 +1,67 @@
+version: "3.8"
+
+services:
+  wordpress:
+    image: wordpress:latest
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      # Auto-configure WordPress on first run
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_DEBUG', true);
+        define('WP_DEBUG_LOG', true);
+        define('WP_DEBUG_DISPLAY', false);
+        define('FORCE_SSL_ADMIN', false);
+        define('WP_AUTO_UPDATE_CORE', false);
+    volumes:
+      - wp_content:/var/www/html/wp-content
+      - ./init-wordpress.sh:/usr/local/bin/init-wordpress.sh
+      - ./uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+      - ./headless-cors.php:/var/www/html/wp-content/plugins/headless-cors.php
+    depends_on:
+      - db
+    restart: unless-stopped
+    networks:
+      - wp-network
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_ROOT_PASSWORD: rootpassword
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    restart: unless-stopped
+    networks:
+      - wp-network
+
+  # Optional: WordPress CLI for management
+  wp-cli:
+    depends_on:
+      - wordpress
+      - db
+    image: wordpress:cli
+    volumes:
+      - wp_content:/var/www/html/wp-content
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+    networks:
+      - wp-network
+
+networks:
+  wp-network:
+    driver: bridge
+
+volumes:
+  db_data:
+  wp_content:
