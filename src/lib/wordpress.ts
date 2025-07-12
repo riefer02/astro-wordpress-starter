@@ -32,7 +32,21 @@ class WordPressClient {
   private cacheTimeout = 5 * 60 * 1000; // 5 minutes
 
   constructor(baseUrl: string) {
-    this.baseUrl = baseUrl.replace(/\/$/, ""); // Remove trailing slash
+    // Clean up the base URL and ensure it's properly formatted
+    this.baseUrl = this.normalizeBaseUrl(baseUrl);
+  }
+
+  private normalizeBaseUrl(url: string): string {
+    // Remove trailing slash
+    url = url.replace(/\/$/, "");
+
+    // If the URL already contains /wp-json, use it as-is
+    if (url.includes("/wp-json")) {
+      return url;
+    }
+
+    // Otherwise, add /wp-json
+    return `${url}/wp-json`;
   }
 
   private async fetchWithError<T>(url: string): Promise<T> {
@@ -76,7 +90,7 @@ class WordPressClient {
   }
 
   private buildUrl(endpoint: string, params: FetchOptions = {}): string {
-    const url = new URL(`${this.baseUrl}/wp-json/wp/v2/${endpoint}`);
+    const url = new URL(`${this.baseUrl}/wp/v2/${endpoint}`);
 
     // Always embed media and author by default
     if (!params._embed) {
