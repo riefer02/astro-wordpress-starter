@@ -26,12 +26,12 @@ export function DismissibleAlert({
   if (!isVisible) return null;
 
   return (
-    <Alert variant={variant} className={`relative ${className || ''}`}>
+    <Alert variant={variant} className={className}>
       <AlertDescription className="pr-8">{children}</AlertDescription>
       <Button
         variant="ghost"
         size="sm"
-        className="absolute right-2 top-2 h-6 w-6 p-0 hover:bg-transparent"
+        className="absolute right-2 top-2 h-6 w-6 p-0 hover:bg-transparent z-10"
         onClick={handleDismiss}
         aria-label="Dismiss alert"
       >

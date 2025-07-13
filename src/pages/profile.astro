@@ -5,7 +5,7 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Label } from '../components/ui/label';
-import { Alert, AlertDescription } from '../components/ui/alert';
+import { DismissibleAlert } from '../components/ui/dismissible-alert';
 import { SimpleAvatar } from '../components/ui/simple-avatar';
 
 // Enable server-side rendering for authentication
@@ -32,19 +32,23 @@ const initials = user.display_name
 >
   <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
     {message && (
-      <Alert variant="success" class="mb-6">
-        <AlertDescription>
-          {message}
-        </AlertDescription>
-      </Alert>
+      <DismissibleAlert 
+        client:load 
+        variant="success" 
+        className="mb-6"
+      >
+        {message}
+      </DismissibleAlert>
     )}
     
     {error && (
-      <Alert variant="destructive" class="mb-6">
-        <AlertDescription>
-          {error}
-        </AlertDescription>
-      </Alert>
+      <DismissibleAlert 
+        client:load 
+        variant="destructive" 
+        className="mb-6"
+      >
+        {error}
+      </DismissibleAlert>
     )}
 
     <div class="space-y-8">

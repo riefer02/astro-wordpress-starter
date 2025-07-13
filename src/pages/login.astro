@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Label } from '../components/ui/label';
-import { Alert, AlertDescription } from '../components/ui/alert';
+import { DismissibleAlert } from '../components/ui/dismissible-alert';
 
 // Enable server-side rendering for authentication
 export const prerender = false;
@@ -37,19 +37,23 @@ const message = Astro.url.searchParams.get('message');
       <Card class="bg-white shadow-md">
         <CardContent class="p-6">
           {message && (
-            <Alert variant="success" class="mb-6">
-              <AlertDescription>
-                {message}
-              </AlertDescription>
-            </Alert>
+            <DismissibleAlert 
+              client:load 
+              variant="success" 
+              className="mb-6"
+            >
+              {message}
+            </DismissibleAlert>
           )}
           
           {error && (
-            <Alert variant="destructive" class="mb-6">
-              <AlertDescription>
-                {error}
-              </AlertDescription>
-            </Alert>
+            <DismissibleAlert 
+              client:load 
+              variant="destructive" 
+              className="mb-6"
+            >
+              {error}
+            </DismissibleAlert>
           )}
 
           <form action="/api/auth/login" method="POST" class="space-y-6">
