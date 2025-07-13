@@ -1,0 +1,147 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PostCard from '@/components/PostCard.astro';
+import { wp } from '@/lib/wordpress';
+import type { WordPressPost } from '@/types/wordpress';
+
+// Enable server-side rendering for better SEO and performance
+export const prerender = false;
+
+// Get pagination parameters
+const url = Astro.url;
+const page = parseInt(url.searchParams.get('page') || '1', 10);
+const perPage = 12; // Posts per page
+
+// Fetch posts with pagination
+let posts: WordPressPost[] = [];
+let totalPosts = 0;
+let totalPages = 0;
+let error: string | null = null;
+
+try {
+  const response = await wp.fetchPosts({ 
+    per_page: perPage, 
+    page: page,
+    _embed: true // Include featured media and author info
+  });
+  
+  posts = Array.isArray(response) ? response : [];
+  
+  // Get total from headers if available (WordPress sends X-WP-Total)
+  // For now, we'll estimate based on returned posts
+  totalPosts = posts.length === perPage ? page * perPage + 1 : (page - 1) * perPage + posts.length;
+  totalPages = Math.ceil(totalPosts / perPage);
+  
+} catch (err) {
+  console.error('Failed to fetch posts:', err);
+  error = 'Failed to load posts. Please check your WordPress API connection.';
+}
+
+// Generate pagination links
+const prevPage = page > 1 ? page - 1 : null;
+const nextPage = posts.length === perPage ? page + 1 : null;
+---
+
+<BaseLayout 
+  title={page === 1 ? "All Posts" : `Posts - Page ${page}`}
+  description="Browse all blog posts and articles"
+>
+  <div class="bg-gray-50 py-8">
+    <div class="container mx-auto px-4">
+      
+      <!-- Page Header -->
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">
+          {page === 1 ? 'All Posts' : `Posts - Page ${page}`}
+        </h1>
+        <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+          Discover our latest articles, tutorials, and insights
+        </p>
+      </div>
+
+      {error ? (
+        <!-- Error State -->
+        <div class="text-center py-12">
+          <div class="bg-red-50 border border-red-200 rounded-lg p-8 max-w-md mx-auto">
+            <div class="text-red-600 mb-4">
+              <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+              </svg>
+            </div>
+            <h2 class="text-xl font-semibold text-red-800 mb-2">Unable to Load Posts</h2>
+            <p class="text-red-700 mb-4">{error}</p>
+            <a 
+              href="/" 
+              class="inline-block bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Back to Home
+            </a>
+          </div>
+        </div>
+      ) : posts.length > 0 ? (
+        <!-- Posts Grid -->
+        <>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {posts.map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
+          </div>
+
+          <!-- Pagination -->
+          {(prevPage || nextPage) && (
+            <div class="flex justify-center items-center space-x-4">
+              {prevPage && (
+                <a
+                  href={`/posts${prevPage === 1 ? '' : `?page=${prevPage}`}`}
+                  class="bg-white text-gray-700 px-6 py-3 rounded-lg border hover:bg-gray-50 transition-colors font-medium flex items-center gap-2"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                  Previous
+                </a>
+              )}
+              
+              <span class="text-gray-600 font-medium">
+                Page {page}
+              </span>
+              
+              {nextPage && (
+                <a
+                  href={`/posts?page=${nextPage}`}
+                  class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+                >
+                  Next
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </a>
+              )}
+            </div>
+          )}
+        </>
+      ) : (
+        <!-- Empty State -->
+        <div class="text-center py-12">
+          <div class="bg-white rounded-lg shadow-lg p-8 max-w-md mx-auto">
+            <div class="text-gray-400 mb-4">
+              <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">No Posts Found</h2>
+            <p class="text-gray-600 mb-6">
+              There are no posts available right now. Check back later or configure your WordPress API.
+            </p>
+            <a 
+              href="/" 
+              class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Back to Home
+            </a>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+</BaseLayout> 

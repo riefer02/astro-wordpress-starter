@@ -1,5 +1,7 @@
 ---
 import '@/styles/global.css';
+import Header from '@/components/navigation/Header';
+import Footer from '@/components/Footer.astro';
 
 export interface Props {
   title: string;
@@ -8,35 +10,44 @@ export interface Props {
 }
 
 const { title, description, image } = Astro.props;
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+// Get authentication state from middleware to pass to React components
+const { isAuthenticated, user } = Astro.locals;
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="description" content={description || "Astro WordPress headless template"} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
-    <link rel="canonical" href={canonicalURL} />
-
     <title>{title}</title>
-    {description && <meta name="description" content={description} />}
-
-    <!-- Open Graph -->
-    <meta property="og:title" content={title} />
+    
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={canonicalURL} />
-    {description && <meta property="og:description" content={description} />}
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description || "Astro WordPress headless template"} />
     {image && <meta property="og:image" content={image} />}
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    {description && <meta name="twitter:description" content={description} />}
-    {image && <meta name="twitter:image" content={image} />}
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description || "Astro WordPress headless template"} />
+    {image && <meta property="twitter:image" content={image} />}
   </head>
-  <body>
-    <slot />
+  <body class="flex flex-col min-h-screen">
+    <Header 
+      client:only="react" 
+      isAuthenticated={isAuthenticated} 
+      user={user}
+    />
+    
+    <main class="flex-1">
+      <slot />
+    </main>
+    
+    <Footer />
   </body>
 </html>

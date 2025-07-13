@@ -3,6 +3,15 @@ import type {
   WordPressPage,
   WordPressError,
   WordPressEmbedded,
+  User,
+  AuthToken,
+  LoginCredentials,
+  RegisterCredentials,
+  UpdateProfileData,
+  ChangePasswordData,
+  AuthResponse,
+  AuthError,
+  JWTValidationResponse,
 } from '../types';
 
 interface FetchOptions {
@@ -284,6 +293,233 @@ class WordPressClient {
       size: this.cache.size,
       keys: Array.from(this.cache.keys()),
     };
+  }
+
+  /**
+   * Authentication Methods
+   */
+
+  /**
+   * Login user with username/password and get JWT token
+   */
+  async login(credentials: LoginCredentials): Promise<AuthToken> {
+    const url = `${this.baseUrl}/jwt-auth/v1/token`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const error: AuthError = {
+        code: errorData.code || 'login_failed',
+        message: errorData.message || 'Login failed',
+        data: {
+          status: response.status,
+          ...errorData.data,
+        },
+      };
+      throw error;
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Validate JWT token
+   */
+  async validateToken(token: string): Promise<JWTValidationResponse> {
+    const url = `${this.baseUrl}/jwt-auth/v1/token/validate`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const error: AuthError = {
+        code: errorData.code || 'token_invalid',
+        message: errorData.message || 'Token validation failed',
+        data: {
+          status: response.status,
+          ...errorData.data,
+        },
+      };
+      throw error;
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Register a new user
+   */
+  async register(credentials: RegisterCredentials): Promise<AuthResponse> {
+    const url = `${this.baseUrl}/auth/v1/register`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const error: AuthError = {
+        code: errorData.code || 'registration_failed',
+        message: errorData.message || 'Registration failed',
+        data: {
+          status: response.status,
+          ...errorData.data,
+        },
+      };
+      throw error;
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Get current user profile (requires authentication)
+   */
+  async getUserProfile(token: string): Promise<User> {
+    const url = `${this.baseUrl}/auth/v1/profile`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const error: AuthError = {
+        code: errorData.code || 'profile_fetch_failed',
+        message: errorData.message || 'Failed to fetch profile',
+        data: {
+          status: response.status,
+          ...errorData.data,
+        },
+      };
+      throw error;
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Update user profile (requires authentication)
+   */
+  async updateProfile(
+    token: string,
+    data: UpdateProfileData
+  ): Promise<AuthResponse> {
+    const url = `${this.baseUrl}/auth/v1/profile`;
+
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const error: AuthError = {
+        code: errorData.code || 'profile_update_failed',
+        message: errorData.message || 'Failed to update profile',
+        data: {
+          status: response.status,
+          ...errorData.data,
+        },
+      };
+      throw error;
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Change user password (requires authentication)
+   */
+  async changePassword(
+    token: string,
+    data: ChangePasswordData
+  ): Promise<AuthResponse> {
+    const url = `${this.baseUrl}/auth/v1/change-password`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const error: AuthError = {
+        code: errorData.code || 'password_change_failed',
+        message: errorData.message || 'Failed to change password',
+        data: {
+          status: response.status,
+          ...errorData.data,
+        },
+      };
+      throw error;
+    }
+
+    return response.json();
+  }
+
+  /**
+   * Make authenticated request to any endpoint
+   */
+  async authenticatedRequest<T>(
+    endpoint: string,
+    token: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        ...options.headers,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const error: AuthError = {
+        code: errorData.code || 'request_failed',
+        message: errorData.message || 'Request failed',
+        data: {
+          status: response.status,
+          ...errorData.data,
+        },
+      };
+      throw error;
+    }
+
+    return response.json();
   }
 }
 

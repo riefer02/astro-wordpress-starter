@@ -159,6 +159,10 @@ echo "🔌 Installing useful plugins..."
 wp_cli plugin install custom-post-type-ui --activate || true
 wp_cli plugin install advanced-custom-fields --activate || true
 
+# Install JWT Authentication plugin for headless authentication
+echo "🔐 Installing JWT Authentication plugin..."
+wp_cli plugin install jwt-authentication-for-wp-rest-api --activate || true
+
 # Activate our custom CORS plugin
 echo "🌐 Activating CORS plugin..."
 wp_cli plugin activate headless-cors || true
@@ -171,6 +175,9 @@ wp_cli option update use_smilies 0 || true
 wp_cli option update default_ping_status 'closed' || true
 wp_cli option update default_comment_status 'closed' || true
 
+# JWT Authentication is configured via environment variables in docker-compose.yml
+echo "✅ JWT Authentication configured via environment variables"
+
 echo "✅ WordPress development environment is ready!"
 echo ""
 echo "🎯 Access URLs:"
@@ -180,6 +187,8 @@ echo "   Password: password"
 echo "   REST API: http://localhost:8080/wp-json/wp/v2"
 echo "   Sample Posts: http://localhost:8080/wp-json/wp/v2/posts"
 echo "   Sample Pages: http://localhost:8080/wp-json/wp/v2/pages"
+echo "   JWT Login: http://localhost:8080/wp-json/jwt-auth/v1/token"
+echo "   User Registration: http://localhost:8080/wp-json/auth/v1/register"
 echo "   MySQL Database: localhost:3328 (wordpress/wordpress)"
 echo ""
 echo "🔄 To restart the environment:"

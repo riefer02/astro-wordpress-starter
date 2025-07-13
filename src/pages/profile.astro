@@ -1,0 +1,196 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
+import { Badge } from '../components/ui/badge';
+import { Label } from '../components/ui/label';
+import { Alert, AlertDescription } from '../components/ui/alert';
+import { SimpleAvatar } from '../components/ui/simple-avatar';
+
+// Enable server-side rendering for authentication
+export const prerender = false;
+
+// Check authentication - this is handled by middleware
+if (!Astro.locals.isAuthenticated || !Astro.locals.user) {
+  return Astro.redirect('/login?redirect=/profile');
+}
+
+const user = Astro.locals.user;
+const error = Astro.url.searchParams.get('error');
+const message = Astro.url.searchParams.get('message');
+
+// Generate user initials for avatar
+const initials = user.display_name
+  ? user.display_name.split(' ').map(name => name[0]).join('').toUpperCase()
+  : user.username?.substring(0, 2).toUpperCase() || 'U';
+---
+
+<BaseLayout 
+  title="Profile" 
+  description="Manage your account settings"
+>
+  <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    {message && (
+      <Alert variant="success" class="mb-6">
+        <AlertDescription>
+          {message}
+        </AlertDescription>
+      </Alert>
+    )}
+    
+    {error && (
+      <Alert variant="destructive" class="mb-6">
+        <AlertDescription>
+          {error}
+        </AlertDescription>
+      </Alert>
+    )}
+
+    <div class="space-y-8">
+      <!-- Profile Overview -->
+      <Card>
+        <CardHeader>
+          <div class="flex items-center space-x-4">
+            <SimpleAvatar className="h-16 w-16 text-xl">
+              {initials}
+            </SimpleAvatar>
+            <div>
+              <CardTitle class="text-2xl">{user.display_name || user.username}</CardTitle>
+              <CardDescription class="text-lg">{user.email}</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h4 class="font-medium text-gray-900">Account Type</h4>
+              <Badge variant="secondary" class="mt-1">
+                {user.roles?.[0] || 'subscriber'}
+              </Badge>
+            </div>
+            <div>
+              <h4 class="font-medium text-gray-900">Member Since</h4>
+              <p class="text-gray-600 mt-1">
+                {new Date(user.registered).toLocaleDateString()}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Update Profile -->
+        <Card>
+          <CardHeader>
+            <CardTitle>Update Profile</CardTitle>
+            <CardDescription>
+              Change your account information
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form action="/api/auth/profile" method="POST" class="space-y-4">
+              <div class="space-y-2">
+                <Label htmlFor="display_name">Display Name</Label>
+                <Input
+                  id="display_name"
+                  name="display_name"
+                  type="text"
+                  value={user.display_name || user.username}
+                  placeholder="Your display name"
+                  class="w-full"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={user.email}
+                  placeholder="Your email address"
+                  class="w-full"
+                />
+              </div>
+
+              <Button type="submit" class="w-full">
+                Update Profile
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+
+        <!-- Change Password -->
+        <Card>
+          <CardHeader>
+            <CardTitle>Change Password</CardTitle>
+            <CardDescription>
+              Update your account password
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form action="/api/auth/change-password" method="POST" class="space-y-4">
+              <div class="space-y-2">
+                <Label htmlFor="current_password">Current Password</Label>
+                <Input
+                  id="current_password"
+                  name="current_password"
+                  type="password"
+                  required
+                  placeholder="Enter current password"
+                  class="w-full"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <Label htmlFor="new_password">New Password</Label>
+                <Input
+                  id="new_password"
+                  name="new_password"
+                  type="password"
+                  required
+                  placeholder="Enter new password"
+                  class="w-full"
+                />
+              </div>
+
+              <div class="space-y-2">
+                <Label htmlFor="confirm_password">Confirm New Password</Label>
+                <Input
+                  id="confirm_password"
+                  name="confirm_password"
+                  type="password"
+                  required
+                  placeholder="Confirm new password"
+                  class="w-full"
+                />
+              </div>
+
+              <Button type="submit" class="w-full">
+                Change Password
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+
+      <!-- Quick Actions -->
+      <Card>
+        <CardHeader>
+          <CardTitle>Account Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div class="flex flex-wrap gap-4">
+            <Button variant="outline" asChild>
+              <a href="/posts">View All Posts</a>
+            </Button>
+            <Button variant="destructive" asChild>
+              <a href="/api/auth/logout">Sign Out</a>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+</BaseLayout> 

@@ -1,0 +1,100 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
+import { Label } from '../components/ui/label';
+import { Alert, AlertDescription } from '../components/ui/alert';
+
+// Enable server-side rendering for authentication
+export const prerender = false;
+
+// If user is already authenticated, redirect to profile
+if (Astro.locals.isAuthenticated) {
+  return Astro.redirect('/profile');
+}
+
+const error = Astro.url.searchParams.get('error');
+const message = Astro.url.searchParams.get('message');
+---
+
+<BaseLayout 
+  title="Register" 
+  description="Create a new account"
+>
+  <div class="min-h-[calc(100vh-200px)] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="w-full max-w-md space-y-8">
+      <div class="text-center">
+        <h1 class="text-3xl font-bold text-gray-900">Create your account</h1>
+        <p class="mt-2 text-sm text-gray-600">
+          Or 
+          <Button variant="link" asChild class="p-0 h-auto">
+            <a href="/login">sign in to existing account</a>
+          </Button>
+        </p>
+      </div>
+
+      <Card class="bg-white shadow-md">
+        <CardContent class="p-6">
+          {message && (
+            <Alert variant="success" class="mb-6">
+              <AlertDescription>
+                {message}
+              </AlertDescription>
+            </Alert>
+          )}
+          
+          {error && (
+            <Alert variant="destructive" class="mb-6">
+              <AlertDescription>
+                {error}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <form action="/api/auth/register" method="POST" class="space-y-6">
+            <div class="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                name="username"
+                type="text"
+                required
+                class="w-full"
+                placeholder="Choose a username"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                required
+                class="w-full"
+                placeholder="Enter your email"
+              />
+            </div>
+
+            <div class="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                class="w-full"
+                placeholder="Create a password"
+              />
+            </div>
+
+            <Button type="submit" className="w-full">
+              Create Account
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+</BaseLayout> 
