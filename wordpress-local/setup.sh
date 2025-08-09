@@ -201,6 +201,7 @@ wp_cli post create \
 echo "🔌 Installing useful plugins..."
 wp_cli plugin install custom-post-type-ui --activate || true
 wp_cli plugin install advanced-custom-fields --activate || true
+wp_cli plugin install all-in-one-wp-migration --activate || true
 
 # Install JWT Authentication plugin for headless authentication
 echo "🔐 Installing JWT Authentication plugin..."
