@@ -10,6 +10,18 @@ echo "🚀 Setting up WordPress development environment..."
 # Make sure we're in the right directory
 cd "$(dirname "$0")"
 
+# Compose command helper (supports docker-compose v1 and docker compose v2)
+compose_cmd() {
+  if command -v docker-compose >/dev/null 2>&1; then
+    docker-compose "$@"
+  elif docker compose version >/dev/null 2>&1; then
+    docker compose "$@"
+  else
+    echo "❌ Neither docker-compose nor docker compose found. Please install Docker Desktop or docker-compose."
+    exit 1
+  fi
+}
+
 # Read only the needed variables from ../.env without sourcing (handles spaces safely)
 read_env_var() {
   # usage: read_env_var VAR_NAME DEFAULT_VALUE
@@ -43,11 +55,11 @@ fi
 
 # Stop any existing containers (preserve data volumes)
 echo "🛑 Stopping existing containers..."
-docker-compose --env-file ../.env down
+compose_cmd --env-file ../.env down
 
 # Start the containers
 echo "🐳 Starting WordPress and MySQL containers..."
-docker-compose --env-file ../.env up -d
+compose_cmd --env-file ../.env up -d
 
 echo "⏳ Waiting for services to be ready..."
 sleep 10
@@ -58,7 +70,7 @@ max_attempts=30
 attempt=0
 
 while [ $attempt -lt $max_attempts ]; do
-    if docker-compose --env-file ../.env exec -T db mysql -u"${MYSQL_USER_EFF}" -p"${MYSQL_PASSWORD_EFF}" -e "SELECT 1" "${MYSQL_DATABASE_EFF}" > /dev/null 2>&1; then
+    if compose_cmd --env-file ../.env exec -T db mysql -u"${MYSQL_USER_EFF}" -p"${MYSQL_PASSWORD_EFF}" -e "SELECT 1" "${MYSQL_DATABASE_EFF}" > /dev/null 2>&1; then
         echo "✅ MySQL is ready!"
         break
     fi
@@ -98,7 +110,7 @@ fi
 # WordPress initialization functions
 wp_cli() {
     # Use wp-cli container with profile (should not recreate existing containers)
-    docker-compose --env-file ../.env --profile cli run --rm wp-cli wp "$@" --allow-root --path=/var/www/html
+    compose_cmd --env-file ../.env --profile cli run --rm wp-cli wp "$@" --allow-root --path=/var/www/html
 }
 
 # Wait for wp-cli to be able to connect to database
