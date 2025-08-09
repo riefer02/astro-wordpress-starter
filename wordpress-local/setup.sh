@@ -10,6 +10,37 @@ echo "🚀 Setting up WordPress development environment..."
 # Make sure we're in the right directory
 cd "$(dirname "$0")"
 
+# Read only the needed variables from ../.env without sourcing (handles spaces safely)
+read_env_var() {
+  # usage: read_env_var VAR_NAME DEFAULT_VALUE
+  var_name="$1"
+  default_value="$2"
+  if [ -f ../.env ]; then
+    value=$(grep -E "^${var_name}=" ../.env | tail -n1 | cut -d'=' -f2-)
+    # Trim surrounding quotes if present
+    value="${value%\"}"
+    value="${value#\"}"
+    value="${value%\'}"
+    value="${value#\'}"
+    if [ -n "$value" ]; then
+      echo "$value"
+      return 0
+    fi
+  fi
+  echo "$default_value"
+}
+
+# Effective values (fallback to common defaults if env not set)
+MYSQL_USER_EFF=${MYSQL_USER:-$(read_env_var MYSQL_USER wordpress)}
+MYSQL_PASSWORD_EFF=${MYSQL_PASSWORD:-$(read_env_var MYSQL_PASSWORD wordpress)}
+MYSQL_DATABASE_EFF=${MYSQL_DATABASE:-$(read_env_var MYSQL_DATABASE wordpress)}
+WORDPRESS_DB_PASSWORD_EFF=${WORDPRESS_DB_PASSWORD:-$(read_env_var WORDPRESS_DB_PASSWORD "$MYSQL_PASSWORD_EFF")}
+
+# Warn if WordPress DB password and MySQL password differ (likely misconfig)
+if [ -n "${WORDPRESS_DB_PASSWORD_EFF}" ] && [ "${WORDPRESS_DB_PASSWORD_EFF}" != "${MYSQL_PASSWORD_EFF}" ]; then
+  echo "⚠️  Warning: WORDPRESS_DB_PASSWORD and MYSQL_PASSWORD differ. WordPress may fail to connect to MySQL."
+fi
+
 # Stop any existing containers (preserve data volumes)
 echo "🛑 Stopping existing containers..."
 docker-compose --env-file ../.env down
@@ -27,7 +58,7 @@ max_attempts=30
 attempt=0
 
 while [ $attempt -lt $max_attempts ]; do
-    if docker-compose --env-file ../.env exec -T db mysql -u wordpress -pwordpress -e "SELECT 1" wordpress > /dev/null 2>&1; then
+    if docker-compose --env-file ../.env exec -T db mysql -u"${MYSQL_USER_EFF}" -p"${MYSQL_PASSWORD_EFF}" -e "SELECT 1" "${MYSQL_DATABASE_EFF}" > /dev/null 2>&1; then
         echo "✅ MySQL is ready!"
         break
     fi
